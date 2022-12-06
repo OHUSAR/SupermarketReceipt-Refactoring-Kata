@@ -36,7 +36,7 @@ export class Teller {
         return receipt;
     }
 
-    handleOffers(theCart: ShoppingCart, receipt: Receipt ):void {
+    private handleOffers(theCart: ShoppingCart, receipt: Receipt ):void {
         for (const productName in theCart.productQuantities()) {
             const productQuantity = theCart.productQuantities()[productName]
             const product = productQuantity.product;
