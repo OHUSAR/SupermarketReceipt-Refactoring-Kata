@@ -9,6 +9,7 @@ import {ProductUnit} from "../../src/model/ProductUnit"
 import {ReceiptPrinter} from "../../src/ReceiptPrinter"
 import {expect} from 'chai'
 import AsyncFunc = Mocha.AsyncFunc
+import BagOfOffers from '../../src/model/BagOfOffers';
 const approvals = require('approvals')
 
 type Approvals = { verify: (a: string) => void }
@@ -23,11 +24,13 @@ describe('Supermarket', function () {
     let rice: Product;
     let apples: Product;
     let cherryTomatoes: Product;
+    let bagOfOffers: BagOfOffers;
 
     beforeEach(function () {
+        bagOfOffers = new BagOfOffers();
 
         catalog = new FakeCatalog();
-        teller = new Teller(catalog);
+        teller = new Teller(catalog, bagOfOffers);
         theCart = new ShoppingCart();
 
         toothbrush = new Product("toothbrush", ProductUnit.Each);
@@ -67,7 +70,7 @@ describe('Supermarket', function () {
         theCart.addItem(toothbrush);
         theCart.addItem(toothbrush);
         theCart.addItem(toothbrush);
-        teller.addSpecialOffer(SpecialOfferType.ThreeForTwo, toothbrush, catalog.getUnitPrice(toothbrush));
+        bagOfOffers.addSpecialOffer(SpecialOfferType.ThreeForTwo, toothbrush, catalog.getUnitPrice(toothbrush));
         const receipt = teller.checksOutArticlesFrom(theCart);
         expect(receipt.getDiscounts()).lengthOf(1)
 
@@ -81,7 +84,7 @@ describe('Supermarket', function () {
         theCart.addItem(toothbrush);
         theCart.addItem(toothbrush);
         theCart.addItem(toothbrush);
-        teller.addSpecialOffer(SpecialOfferType.ThreeForTwo, toothbrush, catalog.getUnitPrice(toothbrush));
+        bagOfOffers.addSpecialOffer(SpecialOfferType.ThreeForTwo, toothbrush, catalog.getUnitPrice(toothbrush));
         const receipt = teller.checksOutArticlesFrom(theCart);
         this.verify (new ReceiptPrinter(40).printReceipt(receipt));
     })
@@ -96,7 +99,7 @@ describe('Supermarket', function () {
 
     it('percent_discount',function (this: any) {
         theCart.addItem(rice);
-        teller.addSpecialOffer(SpecialOfferType.TenPercentDiscount, rice, 10.0);
+        bagOfOffers.addSpecialOffer(SpecialOfferType.TenPercentDiscount, rice, 10.0);
         const receipt = teller.checksOutArticlesFrom(theCart);
         expect(receipt.getDiscounts()).lengthOf(1)
 
@@ -107,7 +110,7 @@ describe('Supermarket', function () {
     it('xForY_discount',function (this: any) {
         theCart.addItem(cherryTomatoes);
         theCart.addItem(cherryTomatoes);
-        teller.addSpecialOffer(SpecialOfferType.TwoForAmount, cherryTomatoes, .99);
+        bagOfOffers.addSpecialOffer(SpecialOfferType.TwoForAmount, cherryTomatoes, .99);
         const receipt = teller.checksOutArticlesFrom(theCart);
         expect(receipt.getDiscounts()).lengthOf(1)
 
@@ -116,14 +119,14 @@ describe('Supermarket', function () {
 
     it('FiveForY_discount', function (this: any) {
         theCart.addItemQuantity(apples, 5);
-        teller.addSpecialOffer(SpecialOfferType.FiveForAmount, apples, 6.99);
+        bagOfOffers.addSpecialOffer(SpecialOfferType.FiveForAmount, apples, 6.99);
         const receipt = teller.checksOutArticlesFrom(theCart);
         this.verify(new ReceiptPrinter(40).printReceipt(receipt));
     });
 
     it('FiveForY_discount_withSix',function (this: any) {
         theCart.addItemQuantity(apples, 6);
-        teller.addSpecialOffer(SpecialOfferType.FiveForAmount, apples, 6.99);
+        bagOfOffers.addSpecialOffer(SpecialOfferType.FiveForAmount, apples, 6.99);
         const receipt = teller.checksOutArticlesFrom(theCart);
         this.verify(new ReceiptPrinter(40).printReceipt(receipt));
     })
@@ -131,7 +134,7 @@ describe('Supermarket', function () {
 
     it('FiveForY_discount_withSixteen',function (this: any) {
         theCart.addItemQuantity(apples, 16);
-        teller.addSpecialOffer(SpecialOfferType.FiveForAmount, apples, 6.99);
+        bagOfOffers.addSpecialOffer(SpecialOfferType.FiveForAmount, apples, 6.99);
         const receipt = teller.checksOutArticlesFrom(theCart);
         this.verify(new ReceiptPrinter(40).printReceipt(receipt));
     })
@@ -139,7 +142,7 @@ describe('Supermarket', function () {
 
     it('FiveForY_discount_withFour',function (this: any) {
         theCart.addItemQuantity(apples, 4);
-        teller.addSpecialOffer(SpecialOfferType.FiveForAmount, apples, 6.99);
+        bagOfOffers.addSpecialOffer(SpecialOfferType.FiveForAmount, apples, 6.99);
         const receipt = teller.checksOutArticlesFrom(theCart);
 
         let receiptPrinter = new ReceiptPrinter(40)
